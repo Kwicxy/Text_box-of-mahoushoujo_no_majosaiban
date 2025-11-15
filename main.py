@@ -90,8 +90,8 @@ mahoshojo = {
     "miria": {"emotion_count": 4, "font": "font3.ttf"},   # 佐伯米莉亚
     "nanoka": {"emotion_count": 5, "font": "font3.ttf"},  # 黑部奈叶香
     "mago": {"emotion_count": 5, "font": "font3.ttf"},   # 宝生玛格
-    "arisa": {"emotion_count": 6, "font": "font3.ttf"},   # 紫藤亚里沙
-    "koko": {"emotion_count": 5, "font": "font3.ttf"}
+    "alisa": {"emotion_count": 6, "font": "font3.ttf"},   # 紫藤亚里沙
+    "coco": {"emotion_count": 5, "font": "font3.ttf"}
 }
 
 # 角色文字配置字典 - 每个角色对应4个文字配置
@@ -132,13 +132,13 @@ text_configs_dict = {
         {"text":"诺","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
         {"text":"亚","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}
     ],
-    "koko": [  # 泽渡可可
+    "coco": [  # 泽渡可可
         {"text":"泽","position":(759,73),"font_color":(251,114,78),"font_size":186},
         {"text":"渡","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
         {"text":"可","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
         {"text":"可","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}
     ],
-    "arisa": [  # 紫藤亚里沙
+    "alisa": [  # 紫藤亚里沙
         {"text":"紫","position":(759,73),"font_color":(235,75,60),"font_size":186},
         {"text":"藤","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
         {"text":"亚","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
