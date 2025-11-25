@@ -9,6 +9,8 @@ import io
 from PIL import Image
 import pyclip
 from sys import platform
+from rich import print, inspect
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeRemainingColumn
 import os
 import yaml
 import tempfile
@@ -40,35 +42,35 @@ Ctrl+Tab: 清除图片
 感谢各位的支持
 """)
 
+
 class ManosabaTextBox:
     def __init__(self):
         # 常量定义
         self.BOX_RECT = ((728, 355), (2339, 800))
-        self.KEY_DELAY = 0.1                    # 组合键延迟
-        self.AUTO_PASTE_IMAGE = True            # 自动粘贴
-        self.AUTO_SEND_IMAGE = True             # 自动发送
+        self.KEY_DELAY = 0.1  # 组合键延迟
+        self.AUTO_PASTE_IMAGE = True  # 自动粘贴
+        self.AUTO_SEND_IMAGE = True  # 自动发送
 
         self.PLATFORM = platform.lower()
         self.kbd_controller = Controller()
 
-        self.BASE_PATH = ""     # 基础路径
-        self.CONFIG_PATH = ""   # 配置路径
-        self.ASSETS_PATH = ""   # 资源路径
-        self.CACHE_PATH = ""    # 缓存路径
+        self.BASE_PATH = ""  # 基础路径
+        self.CONFIG_PATH = ""  # 配置路径
+        self.ASSETS_PATH = ""  # 资源路径
+        self.CACHE_PATH = ""  # 缓存路径
         self.setup_paths()
 
-        self.mahoshojo = {}             # 角色元数据
-        self.text_configs_dict = {}     # 文字配置数据
-        self.character_list = []        # 角色列表
-        self.hotkey_bindings = []       # 热键配置
+        self.mahoshojo = {}  # 角色元数据
+        self.text_configs_dict = {}  # 文字配置数据
+        self.character_list = []  # 角色列表
+        self.hotkey_bindings = []  # 热键配置
         self.load_configs()
-
 
         self.emote = None
         self.value_1 = -1
         self.i = -1
         self.current_character_index = 3
-        
+
     def setup_paths(self):
         """设置文件路径"""
         self.BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -89,6 +91,7 @@ class ManosabaTextBox:
             config = yaml.safe_load(fp)
             self.text_configs_dict = config["text_configs"]
         self.character_list = list(self.mahoshojo.keys())
+        inspect(self.mahoshojo)
 
         # 读取热键配置
         with open(os.path.join(self.CONFIG_PATH, "hotkeys_macos.yml"), 'r', encoding="utf-8") as fp:
@@ -124,7 +127,7 @@ class ManosabaTextBox:
 
     def switch_character(self, new_index: int) -> bool:
         """切换到指定索引的角色"""
-        if 0 <= new_index < len(self.character_list):
+        if 0 <= new_index <= len(self.character_list):
             self.current_character_index = new_index
             character_name = self.get_current_character()
             print(f"已切换到角色: {character_name}")
@@ -151,27 +154,50 @@ class ManosabaTextBox:
         """生成并保存指定角色的所有表情图片"""
         emotion_cnt = self.mahoshojo[character_name]["emotion_count"]
 
+        # 检查是否已经生成过
         for filename in os.listdir(self.CACHE_PATH):
             if filename.startswith(character_name):
                 return
 
-        print("正在加载")
-        for i in range(16):
+        total_images = 16 * emotion_cnt
+
+        with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TextColumn("{task.completed}/{task.total}"),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                TimeRemainingColumn(),
+        ) as progress:
+
+            task = progress.add_task(f"正在为角色 {character_name} 生成 {total_images} 张图片...",
+                                     total=total_images)
+
             for j in range(emotion_cnt):
-                background_path = os.path.join(self.BASE_PATH, 'assets', "background", f"c{i + 1}.png")
-                overlay_path = os.path.join(self.BASE_PATH, 'assets', 'chara', character_name,
-                                            f"{character_name} ({j + 1}).png")
+                for i in range(16):
+                    background_path = os.path.join(
+                        self.BASE_PATH, 'assets', "background", f"c{i + 1}.png"
+                    )
+                    overlay_path = os.path.join(
+                        self.BASE_PATH, 'assets', 'chara', character_name,
+                        f"{character_name} ({j + 1}).png"
+                    )
 
-                background = Image.open(background_path).convert("RGBA")
-                overlay = Image.open(overlay_path).convert("RGBA")
+                    background = Image.open(background_path).convert("RGBA")
+                    overlay = Image.open(overlay_path).convert("RGBA")
 
-                img_num = j * 16 + i + 1
-                result = background.copy()
-                result.paste(overlay, (0, 134), overlay)
+                    img_num = j * 16 + i + 1
+                    result = background.copy()
+                    result.paste(overlay, (0, 134), overlay)
 
-                save_path = os.path.join(self.CACHE_PATH, f"{character_name} ({img_num}).jpg")
-                result.convert("RGB").save(save_path)
-        print("加载完成")
+                    save_path = os.path.join(
+                        self.CACHE_PATH, f"{character_name} ({img_num}).jpg"
+                    )
+                    result.convert("RGB").save(save_path)
+
+                    progress.update(task, advance=1)
+
+        print(f"[green]✓[/green] 角色 {character_name} 加载完成！")
 
     def show_current_character(self) -> None:
         """显示当前角色信息"""
@@ -354,7 +380,7 @@ class ManosabaTextBox:
             if self.AUTO_SEND_IMAGE:
                 self.kbd_controller.press(Key.enter)
                 self.kbd_controller.release(Key.enter)
-                
+
     def run(self):
         print("提示: 在 macOS 上首次运行时，请在'系统设置 > 隐私与安全性 > 辅助功能'中授权此程序")
 
@@ -374,7 +400,7 @@ class ManosabaTextBox:
         finally:
             listener.stop()
             print("\n程序已退出")
-        
+
 
 if __name__ == "__main__":
     app = ManosabaTextBox()
