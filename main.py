@@ -68,6 +68,7 @@ import io
 from PIL import Image
 import win32clipboard
 import os
+import yaml
 
 from text_fit_draw import draw_text_auto
 from image_fit_paste import paste_image_auto
@@ -76,111 +77,6 @@ i = -1
 value_1 = -1
 expression = None
 
-# 角色配置字典
-mahoshojo = {
-    "ema": {"emotion_count": 8, "font": "font3.ttf"},     # 樱羽艾玛
-    "hiro": {"emotion_count": 6, "font": "font3.ttf"},    # 二阶堂希罗
-    "sherri": {"emotion_count": 7, "font": "font3.ttf"},  # 橘雪莉
-    "hanna": {"emotion_count": 5, "font": "font3.ttf"},   # 远野汉娜
-    "anan": {"emotion_count": 9, "font": "font3.ttf"},    # 夏目安安
-    "yuki" : {"emotion_count": 18, "font": "font3.ttf"},
-    "meruru": {"emotion_count": 6, "font": "font3.ttf"},   # 冰上梅露露
-    "noa": {"emotion_count": 6, "font": "font3.ttf"},     # 城崎诺亚
-    "reia": {"emotion_count": 7, "font": "font3.ttf"},    # 莲见蕾雅
-    "miria": {"emotion_count": 4, "font": "font3.ttf"},   # 佐伯米莉亚
-    "nanoka": {"emotion_count": 5, "font": "font3.ttf"},  # 黑部奈叶香
-    "mago": {"emotion_count": 5, "font": "font3.ttf"},   # 宝生玛格
-    "alisa": {"emotion_count": 6, "font": "font3.ttf"},   # 紫藤亚里沙
-    "coco": {"emotion_count": 5, "font": "font3.ttf"}
-}
-
-# 角色文字配置字典 - 每个角色对应4个文字配置
-text_configs_dict = {
-    "nanoka": [  # 黑部奈叶香
-        {"text":"黑","position":(759,63),"font_color":(131,143,147),"font_size":196},
-        {"text":"部","position":(955,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"奈","position":(1053,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"叶香","position":(1197,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "hiro": [  # 二阶堂希罗
-        {"text":"二","position":(759,63),"font_color":(239,79,84),"font_size":196},
-        {"text":"阶堂","position":(955,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"希","position":(1143,110),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"罗","position":(1283,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "ema": [  # 樱羽艾玛
-        {"text":"樱","position":(759,73),"font_color":(253,145,175),"font_size":186},
-        {"text":"羽","position":(949,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"艾","position":(1039,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"玛","position":(1183,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "sherri": [  # 橘雪莉
-        {"text":"橘","position":(759,73),"font_color":(137,177,251),"font_size":186},
-        {"text":"雪","position":(943,110),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"莉","position":(1093,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"","position":(0,0),"font_color":(255, 255, 255),"font_size":1}  # 占位符
-    ],
-    "anan": [  # 夏目安安
-        {"text":"夏","position":(759,73),"font_color":(159,145,251),"font_size":186},
-        {"text":"目","position":(949,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"安","position":(1039,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"安","position":(1183,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "noa": [  # 城崎诺亚
-        {"text":"城","position":(759,73),"font_color":(104,223,231),"font_size":186},
-        {"text":"崎","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"诺","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"亚","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "coco": [  # 泽渡可可
-        {"text":"泽","position":(759,73),"font_color":(251,114,78),"font_size":186},
-        {"text":"渡","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"可","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"可","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "alisa": [  # 紫藤亚里沙
-        {"text":"紫","position":(759,73),"font_color":(235,75,60),"font_size":186},
-        {"text":"藤","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"亚","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"里沙","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "reia": [  # 莲见蕾雅
-        {"text":"莲","position":(759,73),"font_color":(253,177,88),"font_size":186},
-        {"text":"见","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"蕾","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"雅","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "mago": [  # 宝生玛格
-        {"text":"宝","position":(759,73),"font_color":(185,124,235),"font_size":186},
-        {"text":"生","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"玛","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"格","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "hanna": [  # 远野汉娜
-        {"text":"远","position":(759,73),"font_color":(169,199,30),"font_size":186},
-        {"text":"野","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"汉","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"娜","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "meruru": [  # 冰上梅露露
-        {"text":"冰","position":(759,73),"font_color":(227,185,175),"font_size":186},
-        {"text":"上","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"梅","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"露露","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}
-    ],
-    "miria": [  # 佐伯米莉亚
-        {"text":"佐","position":(759,73),"font_color":(235,207,139),"font_size":186},
-        {"text":"伯","position":(945,175),"font_color":(255, 255, 255),"font_size":92},
-        {"text":"米","position":(1042,117),"font_color":(255, 255, 255),"font_size":147},
-        {"text":"莉亚","position":(1186,175),"font_color":(255, 255, 255),"font_size":92}   
-    ],
-    "yuki": [  #月代雪
-    {"text":"月","position":(759,63),"font_color":(195,209,231),"font_size":196},
-    {"text":"代","position":(948,175),"font_color":(255, 255, 255),"font_size":92},
-    {"text":"雪","position":(1053,117),"font_color":(255, 255, 255),"font_size":147} ,   
-    {"text":"","position":(0,0),"font_color":(255, 255, 255),"font_size":1}
-        ]
-}
 import getpass
 
 # 获取当前用户名
@@ -199,6 +95,12 @@ magic_cut_folder = os.path.join(user_documents, '魔裁')
 os.makedirs(magic_cut_folder, exist_ok=True)
 
 # 角色列表（按顺序对应1-13的角色）
+CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "configs.yml")
+with open(CONFIG_PATH, 'r', encoding="utf-8") as fp:
+    config = yaml.safe_load(fp)
+
+mahoshojo = config["mahoshojo"]
+text_configs_dict = config["text_configs"]
 character_list = list(mahoshojo.keys())
 
 # 获取当前角色信息
@@ -212,7 +114,7 @@ def get_current_font():
 def get_current_emotion_count():
     return mahoshojo[get_current_character()]["emotion_count"]
 
-def delate(folder_path, quality=85):
+def delete(folder_path):
     for filename in os.listdir(folder_path):
         if filename.lower().endswith('.jpg'):
             os.remove(folder_path+"\\"+filename)
@@ -514,7 +416,7 @@ keyboard.add_hotkey('ctrl+e', lambda: switch_character(11))  # 角色11
 keyboard.add_hotkey('ctrl+r', lambda: switch_character(12))  # 角色12
 keyboard.add_hotkey('ctrl+t', lambda: switch_character(13))  # 角色13
 keyboard.add_hotkey('ctrl+y', lambda: switch_character(0)) 
-keyboard.add_hotkey('ctrl+Tab', lambda: delate(magic_cut_folder))
+keyboard.add_hotkey('ctrl+Tab', lambda: delete(magic_cut_folder))
 
 for i in range(1,10):
     keyboard.add_hotkey(f'alt+{i}', lambda idx=i: get_expression(idx))
