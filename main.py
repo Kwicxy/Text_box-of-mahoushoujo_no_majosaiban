@@ -65,10 +65,9 @@ import time
 import keyboard
 import pyperclip
 import io
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image
 import win32clipboard
 import os
-import shutil
 
 from text_fit_draw import draw_text_auto
 from image_fit_paste import paste_image_auto
