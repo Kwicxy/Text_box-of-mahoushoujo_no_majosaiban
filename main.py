@@ -484,6 +484,10 @@ def Start():
                 font_path=get_current_font(),
                 role_name=character_name,  # 传递角色名称
                 text_configs_dict=text_configs_dict,  # 传递文字配置字典
+
+                emoji_enabled=True,            # True 开启彩色 emoji，False 关闭
+                emoji_download_retries=4,      # 下载失败最多重试 4 次
+                emoji_scale=1.0,              # emoji 大小=行高*1.0
                 )
 
         except Exception as e:
